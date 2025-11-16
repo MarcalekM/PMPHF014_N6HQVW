@@ -12,9 +12,15 @@ namespace PMPHF014_N6HQVW
     {
         static void Main(string[] args)
         {
-            int openIf = 0;
-            int output = 0;
+            double output = 0; //Létrehozom és 0-ás értéket adok az output változónak
+            int depth = 0;
+
+            double temp = 0;
+            int sameDepthCounter = 1;
+            
+
             List<string> rows = new List<string>();
+            List<int> depths = new List<int>();
 
             using StreamReader sr = new StreamReader(path: @"../../../src/input.txt", encoding: System.Text.Encoding.UTF8);
             int numberOfRows = int.Parse(sr.ReadLine());
@@ -23,39 +29,69 @@ namespace PMPHF014_N6HQVW
                 rows.Add(sr.ReadLine());
             }
 
-            if (numberOfRows > 2)
+            if (numberOfRows > 2) //Ellenrőzöm, hogy több mint két sor van. Ha nem, akkor az output értékét egyből 1-re állítom
             {
-                for (int i = 0; i < numberOfRows; i++)
+                for (int i = 0; i < numberOfRows; i++) //Végig iterálok a rows listán, és megadom, hogy melyik sor, mennyire lenne behúzva a kódban
                 {
-                    if (rows[i] == "if" && rows[i + 1] == "else")
+                    if (rows[i] != "begin" && rows[i] != "end")
                     {
-                        output++;
+                        if ((rows[i] == "if" && rows[i-1] == "if") || (rows[i] == "if" && rows[i - 1] == "else"))
+                        {
+                            depth++;
+                        }
+                        else if ((rows[i] == "else" && rows[i - 1] == "endif") || (rows[i] == "endif" && rows[i - 1] == "endif"))
+                        {
+                            depth--;
+                        }
+                        depths.Add(depth);
+                        Console.WriteLine(depth + " - " + rows[i]);
                     }
-                    if (rows[i] == "if" && rows[i + 1] != "else")
+                }
+                Console.WriteLine();
+
+
+                for (int i = 0; i < depths.Count(); i++) //Végig itrálok a depths listán
+                {
+                    if (sameDepthCounter >= 3 && depths[i] == depths[i-1])
                     {
-                        openIf++;
+                        sameDepthCounter++;
                     }
-                    if (rows[i] == "else" && rows[i + 1] == "endif")
+                    if (i < depths.Count - 1 && depths[i] == depths[i+1])
                     {
-                        output++;
+                        sameDepthCounter++;
+                        temp += 1;
+                        i++;
+                        if (i < depths.Count-1 && depths[i] == depths[i+1])
+                        {
+                            sameDepthCounter++;
+                            temp += 1;
+                            i++;
+                        }
+                        Console.WriteLine(temp);
                     }
-                    if(rows[i] == "else" && rows[i + 1] != "endif")
+                    if (sameDepthCounter % 3 == 0)
                     {
-                        openIf++;
+                        temp = Math.Pow(2, sameDepthCounter / 3);
                     }
-                    if (openIf > 0 && (rows[i] == "endif" && rows[i+1] == "endif"))
+                    else
                     {
-                        openIf--;
+                        output += temp;
+                        temp = 0;
+                        sameDepthCounter = 1;
                     }
+                    if (i >= numberOfRows-4)
+                    {
+                        output += temp;
+                    }
+                    Console.WriteLine("Output: " + output);
                 }
             }
             else
             {
                 output = 1;
             }
-            Console.WriteLine(openIf);
-            Console.WriteLine(output);
-            output += openIf;
+
+            Console.WriteLine($"-----\nOutput: {output}");
 
             using StreamWriter sw = new StreamWriter(path: @"../../../src/output.txt", append: false, encoding: System.Text.Encoding.UTF8);
             sw.Write(output);

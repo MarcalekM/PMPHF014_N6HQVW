@@ -1,4 +1,4 @@
-23
+11
 begin
 if
 if
@@ -7,18 +7,6 @@ endif
 if
 else
 endif
-if
 else
-endif
-else
-if
-if
-else
-endif
-if
-else
-endif
-else
-endif
 endif
 end
